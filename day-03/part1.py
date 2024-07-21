@@ -1,41 +1,70 @@
 import os
 
 def main():
-    filename = 'test-1.txt'
+    input_file = 'input.txt'
     data_folder = 'data'
     main_dir = os.path.split(os.path.abspath(__file__))[0]
-    data_file = os.path.join(main_dir, data_folder)
-    filepath = os.path.join(data_file, filename)
+    input_path = os.path.join(main_dir, data_folder, input_file)
 
-    bag = {'blue': 14,
-           'green': 13,
-           'red': 12}
+    schematic: list = []
+    answer = 0
+    num = ''
+    num_index = []
 
-    games = {}
-    with open(filepath, 'r') as file:
+    with open(input_path, 'r') as file:
         for line in file:
             line = line.strip()
-            game_round = line.split(': ')
-            if game_round[1]:
-                game_sets = game_round[1].split('; ')
-            else:
-                game_sets =  []
-            games[int(game_round[0].strip('Game '))] = game_sets
+            schematic.append(line)
+        file.close()
 
-    for id, game in games.items():
-        print(id, game)
-        for round in game:
-            round_cubes = round.split(', ')
-            print(round_cubes)
-            for j in round_cubes:
-                amount_color = j.split()
-                if bag.get(amount_color[1]) < int(amount_color[0]):
-                    print(f'impossible: {amount_color}')
-                    break
+    """ Any number adjacent to a symbol, even diagonally, 
+    is a "part number" and should be included in your sum 
+    (Periods (.) do not count as a symbol.)
+    """
+
+    for row_num, row_data in enumerate(schematic):
+        for char_index, char in enumerate(row_data):
+            if not char.isdigit():
+                if num:
+                    # identified number > check if it is a part number
+                    if check_part(schematic, row_num, num_index):
+                        answer += int(num)
+                    num = ''
+                    num_index.clear()
             else:
-                continue
+                num += char
+                num_index.append(char_index)
+    
+    print(answer)
+    
+
+def check_part(schematic: list, row_num: int, num_index: list) -> bool:
+    # Check if part numbers are surrounded by "." or "empty"
+    # Row -1, row and row +1
+    # Unless first or last row
+    row_helper = -1
+
+    # Deal with row first and last char that have empty next to them
+    if num_index[0] == 0:
+        num_index.pop(0)
+    elif num_index[-1] == len(schematic[row_num]):
+        num_index.pop(-1)
+
+    while row_helper < 2:
+        if row_num == 0 and row_helper == -1:
+            row_helper += 1
+        elif row_num + row_helper == len(schematic):
             break
-        print(id)
+        else:
+            for char in schematic[row_num + row_helper]\
+                                 [num_index[0] - 1 : num_index[-1] + 2]:
+                if char == '.' or char.isdigit():
+                    continue
+                else:
+                    return True
+            row_helper += 1
+    return False
+                
 
 if __name__ == '__main__':
     main()
