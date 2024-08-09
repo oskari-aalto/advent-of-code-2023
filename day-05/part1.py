@@ -22,53 +22,32 @@ def main():
 
     seeds: list = []
     map_ranges: list = []
-    key_map: int = -1
+    temp_ranges: list = []
 
     with open(input_path, 'r') as file:
         for line in file:
             if 'seeds:' in line:
-                # seeds = dict([(int(key), [-1 for _ in range(num_of_maps)]) 
-                #                 for key in line[6:].split()])
                 seeds = [int(seed) for seed in line[6:].split()]
-                print(f'{seeds} : initial seeds')
-
-            if line == '\n':
-                if map_ranges:
-                    mapper(seeds, map_ranges)
-                    print(f'{seeds} : {key_map}')
-                    map_ranges.clear()
-                key_map += 1
-
-            elif key_map == 0 and line[0].isdigit():
-                map_ranges.append(string_list_to_int_list(line.split()))
-            elif key_map == 1 and line[0].isdigit():
-                map_ranges.append(string_list_to_int_list(line.split()))
-            elif key_map == 2 and line[0].isdigit():
-                map_ranges.append(string_list_to_int_list(line.split()))
-            elif key_map == 3 and line[0].isdigit():
-                map_ranges.append(string_list_to_int_list(line.split()))
-            elif key_map == 4 and line[0].isdigit():
-                map_ranges.append(string_list_to_int_list(line.split()))
-            elif key_map == 5 and line[0].isdigit():
-                map_ranges.append(string_list_to_int_list(line.split()))
-            elif key_map == 6 and line[0].isdigit():
-                map_ranges.append(string_list_to_int_list(line.split()))
-            elif key_map == 7 and line[0].isdigit():
-                map_ranges.append(string_list_to_int_list(line.split()))
+            if line == '\n' and temp_ranges:
+                map_ranges.append(temp_ranges[:]) # copy list by value not ref
+                temp_ranges.clear()
+            elif line[0].isdigit():
+                temp_ranges.append(string_list_to_int_list(line.split()))
+    map_ranges.append(temp_ranges[:]) # copy list by value not ref
+    temp_ranges.clear()
     
     mapper(seeds, map_ranges)
-    print(f'{seeds} : {key_map}')
     print(f'Lowest location number: {min(seeds)}')
-
             
 def mapper(seeds: list, map_ranges: list):
-    for pos, key in enumerate(seeds):
-        for row in map_ranges:
-            if key in range(row[1], row[1] + row[2]):
-                seeds[pos] = key + (row[0] - row[1])
-                break
-        else:
-            seeds[pos] = key
+    for conversion in map_ranges:
+        for pos, key in enumerate(seeds):
+                for row in conversion:
+                    if key in range(row[1], row[1] + row[2]):
+                        seeds[pos] = key + (row[0] - row[1])
+                        break
+                else:
+                    seeds[pos] = key
             
 def string_list_to_int_list(data: list) -> list[int]:
     return [int(value) for value in data]
