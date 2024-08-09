@@ -46,8 +46,6 @@ def mapper(seeds: list, map_ranges: list):
                     if key in range(row[1], row[1] + row[2]):
                         seeds[pos] = key + (row[0] - row[1])
                         break
-                else:
-                    seeds[pos] = key
             
 def string_list_to_int_list(data: list) -> list[int]:
     return [int(value) for value in data]
