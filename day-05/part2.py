@@ -41,7 +41,8 @@ def main():
                 seeds = [int(seed) for seed in line[6:].split()]
                 for i, range_start in enumerate(seeds):
                     if i % 2 == 0:
-                        seed_ranges.append([range_start, seeds[i + 1]])
+                        seed_ranges.append(range(range_start,
+                                                 range_start + seeds[i + 1]))
                 seeds.clear()
             if line == '\n' and temp_ranges:
                 map_ranges.append(temp_ranges[:]) # copy list by value not ref
@@ -50,24 +51,24 @@ def main():
                 temp_ranges.append(string_list_to_int_list(line.split()))
     map_ranges.append(temp_ranges[:]) # copy list by value not ref
     temp_ranges.clear()
-    
+
     print(f'Lowest location number: {mapper(seed_ranges, map_ranges)}')
             
-def mapper(seed_ranges: list, map_ranges: list) -> int:
-    lowest_location = -1
-
-    for seed_range in seed_ranges:
-        for seed in range(seed_range[0], seed_range[0] + seed_range[1]):
-            for conversion in map_ranges:   
-                for row in conversion:
-                    if seed in range(row[1], row[1] + row[2]):
-                        seed = seed + (row[0] - row[1])
-                        break
-            print(seed)
-    #         if seed < lowest_location or lowest_location == -1:
-    #             lowest_location = seed
-
-    # return lowest_location
+def mapper(data: list, maps: list) -> int:
+    for map in maps:
+        new_items = []
+        for item in data:
+            for line in map:
+                # if the produced range has start >= stop then there is no overlap and the len() of the range = 0
+                x = range(max(item[0], line[1]), min(item[-1], (line[1] + line[2]-1))+1)
+                if len(x) > 0:
+                    y = range(x[0] + (line[0]-line[1]), x[-1] + (line[0]-line[1]))
+                    new_items.append(y)
+                    # need to slice the ranges if not full range
+            # after processing the lines for single map we would append those seed ranges that didn't change
+            
+            
+            data = new_items.copy()
 
 def string_list_to_int_list(data: list) -> list[int]:
     return [int(value) for value in data]
